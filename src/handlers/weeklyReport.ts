@@ -6,7 +6,7 @@ function toDateOnly(date: Date): string {
   return date.toISOString().split("T")[0];
 }
 
-// cron: "0 9 * * 0" (毎週日曜 9:00 UTC、元のPipedream設定と同じタイムゾーン)
+// cron: "0 9 * * SUN" (毎週日曜 9:00 UTC、元のPipedream設定と同じタイムゾーン)
 export async function runWeeklyReport(env: Env, now: Date): Promise<void> {
   const end = toDateOnly(now);
   const start = toDateOnly(new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000));
