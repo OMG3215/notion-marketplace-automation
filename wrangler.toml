@@ -1,0 +1,29 @@
+name = "notion-marketplace-automation"
+main = "src/index.ts"
+compatibility_date = "2025-10-01"
+
+# cron一覧:
+#   */5 * * * *    問い合わせ「ステータス=送信待ち」ポーリング(5分おき)
+#   0 9 * * 0      週次レポート(毎週日曜 9:00 UTC)
+#   0 22 28-31 * * 月次レポート判定用(毎日22:00 UTC、28〜31日のみ起動し、
+#                  「翌日=1日」の時だけ実際にレポートを作成する = JST 1日 7:00相当)
+[triggers]
+crons = ["*/5 * * * *", "0 9 * * 0", "0 22 28-31 * *"]
+
+[vars]
+NOTION_VERSION = "2025-09-03"
+DATA_SOURCE_SALES = "f7438ef7-9ce2-49ce-b2f9-69f7c84bbb7a"
+DATA_SOURCE_INQUIRY = "1a78be11-7c1e-80e5-b70c-000bf66c7aec"
+DATA_SOURCE_REPORT = "18e6b163-f79e-482d-bef4-d20db6c375a5"
+GMAIL_FROM_EMAIL = "murameeee@gmail.com"
+GMAIL_FROM_NAME = "おめぐ"
+
+# 以下はシークレットとして `wrangler secret put <NAME>` で登録してください(READMEを参照):
+#   NOTION_TOKEN
+#   MARKETPLACE_WEBHOOK_SECRET
+#   DISCORD_SALES_WEBHOOK_URL
+#   DISCORD_INQUIRY_WEBHOOK_URL
+#   DISCORD_REPORT_WEBHOOK_URL
+#   GMAIL_CLIENT_ID
+#   GMAIL_CLIENT_SECRET
+#   GMAIL_REFRESH_TOKEN
