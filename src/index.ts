@@ -5,7 +5,8 @@ import { runWeeklyReport } from "./handlers/weeklyReport";
 import { runMonthlyReport, shouldRunMonthlyReport } from "./handlers/monthlyReport";
 
 const INQUIRY_POLL_CRON = "*/5 * * * *";
-const WEEKLY_REPORT_CRON = "0 9 * * 0";
+// Cloudflareの曜日は 1〜7(1=日曜) という独自ルールで "0" は無効なため "SUN" を使う
+const WEEKLY_REPORT_CRON = "0 9 * * SUN";
 const MONTHLY_REPORT_CHECK_CRON = "0 22 28-31 * *";
 
 export default {
