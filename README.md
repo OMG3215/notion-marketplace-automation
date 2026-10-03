@@ -78,7 +78,10 @@ Cloudflareアカウントが無ければ https://dash.cloudflare.com/sign-up で
 1. https://console.cloud.google.com/ でプロジェクトを作成
 2. 「APIとサービス」→「ライブラリ」で **Gmail API** を有効化
 3. 「APIとサービス」→「OAuth同意画面」を設定（テストユーザーに murameeee@gmail.com を追加）
-4. 「認証情報」→「OAuthクライアントID」を作成（アプリケーションの種類: **デスクトップアプリ**）→ クライアントID・シークレットを控える
+4. 「認証情報」→「OAuthクライアントID」を作成
+   - アプリケーションの種類: **ウェブアプリケーション**（「デスクトップアプリ」を選ぶとOAuth PlaygroundのリダイレクトURIを登録できず、「このアプリのリクエストは無効です」エラーになります）
+   - 「承認済みのリダイレクトURI」に `https://developers.google.com/oauthplayground` を追加
+   - 作成 → クライアントID・シークレットを控える
 5. [Google OAuth Playground](https://developers.google.com/oauthplayground) を開く
    - 右上の歯車アイコン →「Use your own OAuth credentials」にチェックし、手順4のクライアントID/シークレットを入力
    - 左側のScopeに `https://www.googleapis.com/auth/gmail.send` を入力して「Authorize APIs」
