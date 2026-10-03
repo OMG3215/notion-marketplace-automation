@@ -1,0 +1,17 @@
+{
+  "name": "notion-marketplace-automation",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Pipedream移行: Notionマーケプレ売上通知・問い合わせ自動返信・週次/月次レポートのCloudflare Workers実装",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "tail": "wrangler tail",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^5.20261001.0",
+    "typescript": "^5.6.3",
+    "wrangler": "^4.26.0"
+  }
+}

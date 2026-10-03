@@ -1,0 +1,13 @@
+# ローカル開発用 (`wrangler dev`)。コピーして `.dev.vars` にリネームし値を入れてください。
+# 本番は .dev.vars ではなく `wrangler secret put <NAME>` で登録します。
+
+NOTION_TOKEN=secret_xxx
+MARKETPLACE_WEBHOOK_SECRET=change-me-to-a-long-random-string
+
+DISCORD_SALES_WEBHOOK_URL=https://discord.com/api/webhooks/xxxx/xxxx
+DISCORD_INQUIRY_WEBHOOK_URL=https://discord.com/api/webhooks/xxxx/xxxx
+DISCORD_REPORT_WEBHOOK_URL=https://discord.com/api/webhooks/xxxx/xxxx
+
+GMAIL_CLIENT_ID=xxxx.apps.googleusercontent.com
+GMAIL_CLIENT_SECRET=xxxx
+GMAIL_REFRESH_TOKEN=xxxx
