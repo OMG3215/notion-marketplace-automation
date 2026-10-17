@@ -92,7 +92,7 @@ export async function handleMarketplaceWebhook(request: Request, env: Env): Prom
     `🔖 取引ID: ${acquisitionId}\n` +
     `📩Email：${customerEmail}`;
 
-  await sendDiscordMessage(env.DISCORD_SALES_WEBHOOK_URL, message);
+  await sendDiscordMessage(env, env.DISCORD_SALES_WEBHOOK_URL, message);
 
   return new Response(
     JSON.stringify({ ok: true, acquisitionId, eventLabel }),

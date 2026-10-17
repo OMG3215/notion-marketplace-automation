@@ -39,5 +39,5 @@ export async function runMonthlyReport(env: Env, now: Date): Promise<void> {
     `📝 レポート: ${reportName}\n\n` +
     `🔗 Notionで確認: ${page.url}`;
 
-  await sendDiscordMessage(env.DISCORD_REPORT_WEBHOOK_URL, message);
+  await sendDiscordMessage(env, env.DISCORD_REPORT_WEBHOOK_URL, message);
 }

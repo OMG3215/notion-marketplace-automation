@@ -59,5 +59,5 @@ async function processPage(env: Env, page: any): Promise<void> {
     `📧 送信先: ${toEmail}\n\n` +
     `🔗 Notionで確認: ${page.url}`;
 
-  await sendDiscordMessage(env.DISCORD_INQUIRY_WEBHOOK_URL, message);
+  await sendDiscordMessage(env, env.DISCORD_INQUIRY_WEBHOOK_URL, message);
 }

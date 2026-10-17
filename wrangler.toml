@@ -21,6 +21,9 @@ DATA_SOURCE_INQUIRY = "1a78be11-7c1e-80e5-b70c-000bf66c7aec"
 DATA_SOURCE_REPORT = "18e6b163-f79e-482d-bef4-d20db6c375a5"
 GMAIL_FROM_EMAIL = "REDACTED_EMAIL"
 GMAIL_FROM_NAME = "おめぐ"
+# DiscordでメンションしたいユーザーID。空のままなら通知にメンションを付けない。
+# 確認方法: Discordの設定→詳細設定→開発者モードをON→自分のアイコンを右クリック→「IDをコピー」
+DISCORD_MENTION_USER_ID = ""
 
 # 以下はシークレットとして `wrangler secret put <NAME>` で登録してください(READMEを参照):
 #   NOTION_TOKEN
