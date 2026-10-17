@@ -11,6 +11,7 @@ export interface Env {
   // secrets (wrangler secret put)
   NOTION_TOKEN: string;
   MARKETPLACE_WEBHOOK_SECRET: string;
+  NEW_INQUIRY_WEBHOOK_SECRET: string;
   DISCORD_SALES_WEBHOOK_URL: string;
   DISCORD_INQUIRY_WEBHOOK_URL: string;
   DISCORD_REPORT_WEBHOOK_URL: string;

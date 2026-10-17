@@ -7,8 +7,13 @@ Cloudflare Workers 1つに移植したものです。
 |---|---|
 | Notion Marketplace 通知（Webhook受信） | `POST /webhooks/marketplace-sales`（HTTPエンドポイント） |
 | Notion 問合せ / 返信済み（Notion更新をポーリング） | cron `*/5 * * * *`（5分おきにステータス=送信待ちを検索） |
-| Notion-template-WEEKLYreport | cron `0 9 * * 0`（毎週日曜 9:00 UTC） |
+| Notion-template-WEEKLYreport | cron `0 9 * * SUN`（毎週日曜 9:00 UTC） |
 | Notion-template-MONTHLY report | cron `0 22 28-31 * *`（JST毎月1日 7:00相当） |
+| (新規問い合わせ通知 ※後述) | `POST /webhooks/new-inquiry`（HTTPエンドポイント） |
+
+※最後の「新規問い合わせ通知」は、エクスポートされた4ワークフローには含まれていませんでした。
+Notion上の設計メモ（「Pipedream設定手順」ページ）には存在していましたが、実際には作られていなかったようです。
+今回あわせて実装しています。詳しくは下の「6. 新規問い合わせ通知を設定する」を参照してください。
 
 ## なぜCloudflare Workersか
 
@@ -26,6 +31,7 @@ src/
     inquiryReply.ts         # ②問い合わせ自動返信（5分おきポーリング）
     weeklyReport.ts         # ③週次レポート雛形作成
     monthlyReport.ts        # ④月次レポート雛形作成
+    newInquiryNotify.ts     # ⑤新規問い合わせ受信 → Discord通知(Notionオートメーションからのwebhook受信)
   lib/
     notion.ts               # Notion API (2025-09-03, data_sources) 薄いラッパー
     discord.ts               # Discord Incoming Webhook送信
@@ -96,6 +102,31 @@ Cloudflareアカウントが無ければ https://dash.cloudflare.com/sign-up で
 Webhook URLは `https://<あなたのworker名>.<サブドメイン>.workers.dev/webhooks/marketplace-sales?secret=<このシークレット>` の形で
 マーケットプレイス側のWebhook設定URL欄にそのまま登録します（カスタムヘッダーを設定できる場合は `X-Webhook-Secret` ヘッダーでも可）。
 
+### 6. 新規問い合わせ通知を設定する
+
+元のPipedreamには存在していなかった(設計メモのみ残っていた)機能で、
+「問い合わせフォームに新しい行が追加されたら、即座にDiscordに通知する」ものです。
+
+まず認証用シークレットを決めます(`MARKETPLACE_WEBHOOK_SECRET`と同じ要領で、好きな長いランダム文字列):
+
+```bash
+openssl rand -hex 32
+```
+
+次に、**Notion側で問い合わせフォームのデータベースにオートメーションを設定**します(Pipedreamを経由しません):
+
+1. 「Notion-問い合わせフォーム」データベースを開く
+2. 右上の「⚡」(オートメーション)アイコン → 「新規オートメーション」
+3. トリガー: 「ページが追加されたとき」
+4. アクション: 「Webhookを送信」
+5. URL: `https://notion-marketplace-automation.<サブドメイン>.workers.dev/webhooks/new-inquiry?secret=<さっき決めた文字列>`
+6. 送信するプロパティに「お名前」「メール」「ご利用いただいているテンプレート」を選択(Notionのプラン次第でWebhookアクションが使えない場合があります。有料プランが必要です)
+
+Notion公式の「Send webhook」アクションが実際に送ってくるペイロードの正確な形式は非公開のため、
+`newInquiryNotify.ts` 側は受け取ったJSONの中からプロパティ名をキーに値を再帰的に探す作りにしてあります。
+万が一メッセージの中身が空(名前不明、など)になる場合は、`wrangler tail` で実際のペイロードを確認し、
+`src/handlers/newInquiryNotify.ts` の抽出ロジックを実データに合わせて調整してください。
+
 ## デプロイ手順
 
 ```bash
@@ -104,6 +135,7 @@ npm install
 # シークレットを1つずつ登録(対話式でペーストを求められます)
 npx wrangler secret put NOTION_TOKEN
 npx wrangler secret put MARKETPLACE_WEBHOOK_SECRET
+npx wrangler secret put NEW_INQUIRY_WEBHOOK_SECRET
 npx wrangler secret put DISCORD_SALES_WEBHOOK_URL
 npx wrangler secret put DISCORD_INQUIRY_WEBHOOK_URL
 npx wrangler secret put DISCORD_REPORT_WEBHOOK_URL
@@ -150,7 +182,8 @@ curl "http://localhost:8787/__scheduled?cron=*/5+*+*+*+*"
 
 - [ ] Notion Internal Integrationが3つのデータベースに接続されている
 - [ ] 3つのDiscordチャンネルで通知が届く
-- [ ] テスト用の問い合わせ行（ステータス=送信待ち）を作って、5分以内に返信メール・ステータス更新・Discord通知が走る
+- [ ] テスト用の問い合わせ行を新規作成して、即座に「新規問い合わせが届きました」のDiscord通知が来る
+- [ ] そのテスト行の「件名」「返信文」を書いてステータスを「送信待ち」にし、5分以内に返信メール・ステータス更新・「返信を送信しました」のDiscord通知が走る
 - [ ] マーケットプレイスのテスト購入(またはcurl)でNotion行作成とDiscord通知が走る
 - [ ] 月初・週初を待たずに `runWeeklyReport` / `runMonthlyReport` を一時的に手動実行して期間・文言を確認（`wrangler dev --test-scheduled` の `/__scheduled?cron=...` 参照）
 - [ ] 上記が全部OKなら、マーケットプレイス側のWebhook URLをPipedreamからこのWorkerに切り替える

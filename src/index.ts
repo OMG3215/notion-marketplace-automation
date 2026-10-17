@@ -1,5 +1,6 @@
 import type { Env } from "./lib/env";
 import { handleMarketplaceWebhook } from "./handlers/marketplaceWebhook";
+import { handleNewInquiryWebhook } from "./handlers/newInquiryNotify";
 import { runInquiryReplyPoll } from "./handlers/inquiryReply";
 import { runWeeklyReport } from "./handlers/weeklyReport";
 import { runMonthlyReport, shouldRunMonthlyReport } from "./handlers/monthlyReport";
@@ -15,6 +16,10 @@ export default {
 
     if (url.pathname === "/webhooks/marketplace-sales") {
       return handleMarketplaceWebhook(request, env);
+    }
+
+    if (url.pathname === "/webhooks/new-inquiry") {
+      return handleNewInquiryWebhook(request, env);
     }
 
     if (url.pathname === "/health") {
