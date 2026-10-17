@@ -39,11 +39,38 @@ export function updatePage(env: Env, pageId: string, properties: Record<string, 
   });
 }
 
-export function queryDataSource(env: Env, dataSourceId: string, filter: Record<string, unknown>) {
+export function queryDataSource(
+  env: Env,
+  dataSourceId: string,
+  filter?: Record<string, unknown>,
+  startCursor?: string
+) {
   return notionFetch(env, `/data_sources/${dataSourceId}/query`, {
     method: "POST",
-    body: JSON.stringify({ filter }),
+    body: JSON.stringify({
+      ...(filter ? { filter } : {}),
+      page_size: 100,
+      ...(startCursor ? { start_cursor: startCursor } : {}),
+    }),
   });
+}
+
+// filterを省略するとデータソース内の全行を取得する(ページネーションを自動で辿る)
+export async function queryAllRows(
+  env: Env,
+  dataSourceId: string,
+  filter?: Record<string, unknown>
+): Promise<any[]> {
+  const rows: any[] = [];
+  let cursor: string | undefined;
+
+  do {
+    const page = await queryDataSource(env, dataSourceId, filter, cursor);
+    rows.push(...(page.results ?? []));
+    cursor = page.has_more ? page.next_cursor : undefined;
+  } while (cursor);
+
+  return rows;
 }
 
 // Notionの rich_text プロパティから結合済みプレーンテキストを取り出す

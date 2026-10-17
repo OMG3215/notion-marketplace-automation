@@ -1,6 +1,7 @@
 import type { Env } from "../lib/env";
 import { createPage } from "../lib/notion";
 import { sendDiscordMessage } from "../lib/discord";
+import { analyzeSalesPeriod, buildReportProperties, buildDiscordAnalysisBlock } from "../lib/salesAnalysis";
 
 function toDateOnly(date: Date): string {
   return date.toISOString().split("T")[0];
@@ -20,23 +21,36 @@ export async function runMonthlyReport(env: Env, now: Date): Promise<void> {
   const month = now.getUTCMonth() + 1; // 1-indexed, 既に「先月」を指す
 
   const periodStart = new Date(Date.UTC(year, month - 1, 1));
-  const periodEnd = new Date(Date.UTC(year, month, 0)); // 月末日
+  const periodEndExclusive = new Date(Date.UTC(year, month, 1)); // 翌月1日0:00(月末日を含めるための排他的な境界)
+  const periodEndDateOnly = new Date(Date.UTC(year, month, 0)); // 月末日(表示用)
+  const previousPeriodStart = new Date(Date.UTC(year, month - 2, 1));
+  const previousPeriodEnd = periodStart;
 
   const reportName = `${year}年${String(month).padStart(2, "0")}月 売上分析`;
+
+  const analysis = await analyzeSalesPeriod(
+    env,
+    periodStart,
+    periodEndExclusive,
+    previousPeriodStart,
+    previousPeriodEnd
+  );
 
   const properties = {
     レポート名: { title: [{ text: { content: reportName } }] },
     レポート種別: { select: { name: "月次" } },
-    ステータス: { status: { name: "未分析" } },
-    分析期間: { date: { start: toDateOnly(periodStart), end: toDateOnly(periodEnd) } },
+    ステータス: { status: { name: "完了" } },
+    分析期間: { date: { start: toDateOnly(periodStart), end: toDateOnly(periodEndDateOnly) } },
+    ...buildReportProperties(analysis, `${year}年${String(month).padStart(2, "0")}月`),
   };
 
   const page = await createPage(env, env.DATA_SOURCE_REPORT, properties);
 
   const message =
-    `📊 **月次分析の準備ができました**\n\n` +
+    `📊 **月次分析が完了しました**\n\n` +
     `📅 対象期間: ${year}年${String(month).padStart(2, "0")}月\n` +
     `📝 レポート: ${reportName}\n\n` +
+    `${buildDiscordAnalysisBlock(analysis)}\n\n` +
     `🔗 Notionで確認: ${page.url}`;
 
   await sendDiscordMessage(env, env.DISCORD_REPORT_WEBHOOK_URL, message);

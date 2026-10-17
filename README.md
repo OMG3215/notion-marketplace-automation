@@ -7,8 +7,8 @@ Cloudflare Workers 1つに移植したものです。
 |---|---|
 | Notion Marketplace 通知（Webhook受信） | `POST /webhooks/marketplace-sales`（HTTPエンドポイント） |
 | Notion 問合せ / 返信済み（Notion更新をポーリング） | cron `*/5 * * * *`（5分おきにステータス=送信待ちを検索） |
-| Notion-template-WEEKLYreport | cron `0 9 * * SUN`（毎週日曜 9:00 UTC） |
-| Notion-template-MONTHLY report | cron `0 22 28-31 * *`（JST毎月1日 7:00相当） |
+| Notion-template-WEEKLYreport | cron `0 9 * * SUN`（毎週日曜 9:00 UTC）+ 売上データの自動分析 |
+| Notion-template-MONTHLY report | cron `0 22 28-31 * *`（JST毎月1日 7:00相当）+ 売上データの自動分析 |
 | (新規問い合わせ通知 ※後述) | `POST /webhooks/new-inquiry`（HTTPエンドポイント） |
 
 ※最後の「新規問い合わせ通知」は、エクスポートされた4ワークフローには含まれていませんでした。
@@ -29,15 +29,36 @@ src/
   handlers/
     marketplaceWebhook.ts  # ①売上Webhook受信 → Notion作成 → Discord通知
     inquiryReply.ts         # ②問い合わせ自動返信（5分おきポーリング）
-    weeklyReport.ts         # ③週次レポート雛形作成
-    monthlyReport.ts        # ④月次レポート雛形作成
+    weeklyReport.ts         # ③週次レポート作成+分析
+    monthlyReport.ts        # ④月次レポート作成+分析
     newInquiryNotify.ts     # ⑤新規問い合わせ受信 → Discord通知(Notionオートメーションからのwebhook受信)
   lib/
     notion.ts               # Notion API (2025-09-03, data_sources) 薄いラッパー
     discord.ts               # Discord Incoming Webhook送信
     gmail.ts                  # Gmail API送信（OAuth refresh tokenベース）
+    salesAnalysis.ts          # 売上データの集計・分析(AIを使わずコードで計算)
     env.ts                     # 環境変数/シークレットの型定義
 ```
+
+## 週次/月次レポートの自動分析について
+
+以前はレポートの雛形だけ作成し、その後Notion AIエージェント(「週次分析して」コマンド)に
+分析させていましたが、Notion AIのクレジットを消費するため運用を止めていました。
+
+このWorkerでは、レポート作成と同時に**AIを使わずコード(集計処理)で**以下を自動計算して埋めます(`src/lib/salesAnalysis.ts`):
+
+- 総売上・販売数（Marketplace 売上管理DBから直接集計。返金は売上から差し引く）
+- トップテンプレート（件数の多い順に3件）
+- リピーター数・リピート率（期間内の購入者のうち、それ以前にも購入履歴がある人の割合）
+- 前期間比（前週/前月の総売上との比較）
+- 分析サマリ・次のアクション（上記の数字をもとにした定型文。Notion AIは使っていません）
+
+**注意:** 「分析サマリ」「次のアクション」はルールベースの定型文です。Notion AIのような
+文脈を読んだ柔軟な考察ではありません。より詳しい考察が欲しい場合は、このレポートを元に
+改めてNotion AIやClaudeに相談する使い方を想定しています。
+
+このWorkerへの移行後は、以前の「週次分析して」「月次分析して」コマンドをマーケプレのレポートに対して
+実行する必要はありません(自動で完了します)。
 
 ## 事前準備（1回だけ）
 
