@@ -4,9 +4,7 @@ export interface Env {
   DATA_SOURCE_SALES: string;
   DATA_SOURCE_INQUIRY: string;
   DATA_SOURCE_REPORT: string;
-  GMAIL_FROM_EMAIL: string;
   GMAIL_FROM_NAME: string;
-  DISCORD_MENTION_USER_ID: string;
 
   // secrets (wrangler secret put)
   NOTION_TOKEN: string;
@@ -18,4 +16,6 @@ export interface Env {
   GMAIL_CLIENT_ID: string;
   GMAIL_CLIENT_SECRET: string;
   GMAIL_REFRESH_TOKEN: string;
+  GMAIL_FROM_EMAIL: string;
+  DISCORD_MENTION_USER_ID: string;
 }

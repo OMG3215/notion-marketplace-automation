@@ -3,11 +3,14 @@
 
 NOTION_TOKEN=secret_xxx
 MARKETPLACE_WEBHOOK_SECRET=change-me-to-a-long-random-string
+NEW_INQUIRY_WEBHOOK_SECRET=change-me-to-a-long-random-string
 
 DISCORD_SALES_WEBHOOK_URL=https://discord.com/api/webhooks/xxxx/xxxx
 DISCORD_INQUIRY_WEBHOOK_URL=https://discord.com/api/webhooks/xxxx/xxxx
 DISCORD_REPORT_WEBHOOK_URL=https://discord.com/api/webhooks/xxxx/xxxx
+DISCORD_MENTION_USER_ID=
 
 GMAIL_CLIENT_ID=xxxx.apps.googleusercontent.com
 GMAIL_CLIENT_SECRET=xxxx
 GMAIL_REFRESH_TOKEN=xxxx
+GMAIL_FROM_EMAIL=you@example.com

@@ -100,11 +100,11 @@ Cloudflareアカウントが無ければ https://dash.cloudflare.com/sign-up で
 
 ### 4. Gmail送信用のOAuthクレデンシャルを取得する
 
-`REDACTED_EMAIL` から送信するため、Gmail APIのOAuth2 refresh tokenを発行します。
+テンプレート作成者ご自身のGmailアドレスから送信するため、Gmail APIのOAuth2 refresh tokenを発行します。
 
 1. https://console.cloud.google.com/ でプロジェクトを作成
 2. 「APIとサービス」→「ライブラリ」で **Gmail API** を有効化
-3. 「APIとサービス」→「OAuth同意画面」を設定（テストユーザーに REDACTED_EMAIL を追加）
+3. 「APIとサービス」→「OAuth同意画面」を設定（テストユーザーに送信元として使うGmailアドレスを追加）
 4. 「認証情報」→「OAuthクライアントID」を作成
    - アプリケーションの種類: **ウェブアプリケーション**（「デスクトップアプリ」を選ぶとOAuth PlaygroundのリダイレクトURIを登録できず、「このアプリのリクエストは無効です」エラーになります）
    - 「承認済みのリダイレクトURI」に `https://developers.google.com/oauthplayground` を追加
@@ -112,10 +112,11 @@ Cloudflareアカウントが無ければ https://dash.cloudflare.com/sign-up で
 5. [Google OAuth Playground](https://developers.google.com/oauthplayground) を開く
    - 右上の歯車アイコン →「Use your own OAuth credentials」にチェックし、手順4のクライアントID/シークレットを入力
    - 左側のScopeに `https://www.googleapis.com/auth/gmail.send` を入力して「Authorize APIs」
-   - REDACTED_EMAIL でログイン・許可
+   - 送信元として使うGmailアドレスでログイン・許可
    - 「Exchange authorization code for tokens」を押し、**Refresh token** を控える
 
-控えた `GMAIL_CLIENT_ID` / `GMAIL_CLIENT_SECRET` / `GMAIL_REFRESH_TOKEN` を後でシークレット登録します。
+控えた `GMAIL_CLIENT_ID` / `GMAIL_CLIENT_SECRET` / `GMAIL_REFRESH_TOKEN` と、送信元の `GMAIL_FROM_EMAIL`(Gmailアドレス本体)を後でシークレット登録します。
+送信元メールアドレスは`wrangler.toml`に平文で置かず、必ずシークレットとして登録してください(リポジトリを公開している場合、個人のメールアドレスが漏れてしまいます)。
 
 ### 5. マーケットプレイス側のWebhook認証用シークレットを決める
 
@@ -163,6 +164,8 @@ npx wrangler secret put DISCORD_REPORT_WEBHOOK_URL
 npx wrangler secret put GMAIL_CLIENT_ID
 npx wrangler secret put GMAIL_CLIENT_SECRET
 npx wrangler secret put GMAIL_REFRESH_TOKEN
+npx wrangler secret put GMAIL_FROM_EMAIL
+npx wrangler secret put DISCORD_MENTION_USER_ID   # 空でもOK(メンション無しになる)
 
 npm run deploy
 ```

@@ -19,11 +19,7 @@ NOTION_VERSION = "2025-09-03"
 DATA_SOURCE_SALES = "f7438ef7-9ce2-49ce-b2f9-69f7c84bbb7a"
 DATA_SOURCE_INQUIRY = "1a78be11-7c1e-80e5-b70c-000bf66c7aec"
 DATA_SOURCE_REPORT = "18e6b163-f79e-482d-bef4-d20db6c375a5"
-GMAIL_FROM_EMAIL = "REDACTED_EMAIL"
 GMAIL_FROM_NAME = "おめぐ"
-# DiscordでメンションしたいユーザーID。空のままなら通知にメンションを付けない。
-# 確認方法: Discordの設定→詳細設定→開発者モードをON→自分のアイコンを右クリック→「IDをコピー」
-DISCORD_MENTION_USER_ID = "REDACTED_DISCORD_ID"
 
 # 以下はシークレットとして `wrangler secret put <NAME>` で登録してください(READMEを参照):
 #   NOTION_TOKEN
@@ -35,3 +31,6 @@ DISCORD_MENTION_USER_ID = "REDACTED_DISCORD_ID"
 #   GMAIL_CLIENT_ID
 #   GMAIL_CLIENT_SECRET
 #   GMAIL_REFRESH_TOKEN
+#   GMAIL_FROM_EMAIL
+#   DISCORD_MENTION_USER_ID(空でもよい。設定方法: Discordの設定→詳細設定→開発者モードをON→
+#     自分のアイコンを右クリック→「IDをコピー」。未設定ならメンションなしで通知される)
